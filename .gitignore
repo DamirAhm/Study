@@ -1,0 +1,7 @@
+.idea
+
+cmake-build-debug
+
+./CMakeLists.txt
+/Prog_lab_1/cmake-build-debug/
+/Prog_lab_1/.idea/
