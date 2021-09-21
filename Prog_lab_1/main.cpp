@@ -29,31 +29,48 @@ ld pow(ld number, int power) {
 
 ld count1(ld x) {
     ld result2 = ((pow(x, 6) + 1) * x - 1) * x + 1;
+    cout << "Результат 2го полинома: " << result2 << endl;
+
     ld result60 = ((A * pow(x, 16) + B) * pow(x, 16) + C) * pow(x, 4);
+    cout << "Результат 60го полинома: " << result60 << endl;
 
     return result2 * result60;
 }
 
 ld count2(ld x) {
     ld P1_2 = pow(x, 6) + 1;
-    cout << "На шаге 1, 2го полинома P1 = " << P1_2 << endl;
+    cout << "На шаге 1, 2го полинома P1: " << P1_2 << endl;
     ld P2_2 = P1_2 * x - 1;
-    cout << "На шаге 2, 2го полинома P2 = " << P2_2 << endl;
+    cout << "На шаге 2, 2го полинома P2: " << P2_2 << endl;
     ld P3_2 = P2_2 * x + 1;
-    cout << "На шаге 3, 2го полинома P3 = " << P3_2 << endl;
+    cout << "Результат 2го полинома:" << P3_2 << endl;
 
     ld P1_60 = A * pow(x, 16) + B;
-    cout << "На шаге 1, 60го полинома P1 = " << P1_60 << endl;
+    cout << "На шаге 1, 60го полинома P1: " << P1_60 << endl;
     ld P2_60 = P1_60 * pow(x, 16) + C;
-    cout << "На шаге 2, 60го полинома P2 = " << P2_60 << endl;
+    cout << "На шаге 2, 60го полинома P2: " << P2_60 << endl;
     ld P3_60 = P2_60 * pow(x, 4);
-    cout << "На шаге 3, 60го полинома P3 = " << P3_60 << endl;
+    cout << "Результат 60го полинома: " << P3_60 << endl;
 
     return P3_2 * P3_60;
 }
 
 ld count3(ld x) {
-    return 0;
+    ld P1_2 = pow(x, 6) + 1;
+    printf("На шаге 1, 2го полинома P1: %Lf\n", P1_2);
+    ld P2_2 = P1_2 * x - 1;
+    printf("На шаге 2, 2го полинома P2: %Lf\n", P2_2);
+    ld P3_2 = P2_2 * x + 1;
+    printf("Результат 2го полинома: %Lf\n", P3_2);
+
+    ld P1_60 = A * pow(x, 16) + B;
+    printf("На шаге 1, 60го полинома P1: %Lf\n", P1_60);
+    ld P2_60 = P1_60 * pow(x, 16) + C;
+    printf("На шаге 2, 60го полинома P2: %Lf\n", P2_60);
+    ld P3_60 = P2_60 * pow(x, 4);
+    printf("Результат 60го полинома: %Lf\n", P3_60);
+
+    return P3_2 * P3_60;
 }
 
 int main() {
@@ -72,8 +89,8 @@ int main() {
 
     cout << endl << fixed << setprecision(4);
 
-    ld res = count1(x);
-    cout << "Для х = " << x << " результат, Р = " << res;
+    ld res = count3(x);
+    printf("Для х = %Lf, результат умножения полиномов равен: %Lf", x, res);
 
     return 0;
 }
