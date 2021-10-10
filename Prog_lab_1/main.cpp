@@ -96,8 +96,7 @@ int main() {
 
     cout << endl << fixed << setprecision(5);
 
-    ld res = count1(x);
-    printf("Для х = %.5Lf, результат умножения полиномов равен: %.5Lf", x, res);
+    printf("Для х = %.5Lf, результат умножения полиномов равен: %.5Lf", x, count2(x));
 
     return 0;
 }
