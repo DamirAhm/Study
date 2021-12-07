@@ -5,6 +5,14 @@
 #include <iomanip>
 #include <algorithm>
 
+/*
+    Здравствуйте, данную лабораторную работу выполнил Ахметзянов Дамир Альбертович, группа 1309
+    Версия: 3.0
+    Начало: 15.11.2021
+    Конец: -
+    Задание: 20г
+*/
+
 using namespace std;
 
 const int PRES = 1;
@@ -33,7 +41,7 @@ void read_array(fstream &in, double **arr, int &N) {
     int read_rows = 0;
     for (int i = 0; i < N; i++, read_rows++) {
         if (in.eof()) {
-            N = 0;
+            N = i + 1;
             break;
         }
         auto *row = new double[N];
@@ -69,7 +77,6 @@ void read_array(fstream &in, double **arr, int &N) {
                 }
                 in.seekg(-1, ios::cur);
             }
-
         }
 
         if (!changed_line) {
@@ -120,8 +127,8 @@ double parse_array(double **arr, int N, int m, int k) {
 }
 
 int main() {
-    fstream in("../good.txt");
-    fstream file("../out.txt");
+    fstream in("../good.txt", ios::in);
+    fstream file("../out.txt", ios::out);
 
     if (!in.is_open()) {
         cout << "Невозможно открыть файл для чтения";
@@ -131,10 +138,16 @@ int main() {
         return 0;
     }
 
+    out(file, "Здравствуйте, данную лабораторную работу выполнил Ахметзянов Дамир Альбертович, группа 1309\n"
+              "Версия: 3.0\n"
+              "Начало: 15.11.2021\n"
+              "Конец: -\n"
+              "Задание: 20г\n");
+
     int m, k;
-    out(file, "Введите m: ");
+    out(file, "Введите m(0 < m < N): ");
     cin >> m;
-    out(file, "Введите k: ");
+    out(file, "Введите k(0 <  < N): ");
     cin >> k;
 
     int N;
@@ -151,7 +164,6 @@ int main() {
     }
 
     read_array(in, arr, N);
-    cout << N;
     double res = parse_array(arr, N, m, k);
 
     out(file, "Результат: ");
