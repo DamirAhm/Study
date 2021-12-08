@@ -39,6 +39,10 @@ double dist(double *dot, double *line1, double *line2) {
     return abs(A * dot[0] + B * dot[1] + C) / sqrt(pow(A, 2) + pow(B, 2));
 }
 
+double vec_prod(double *a, double *b) {
+    return b[0] * a[1] - a[0] * b[1];
+}
+
 //каждый массив длинны 2
 bool is_90(double *a, double *b, double *c) {
     double vec1[2] = {b[0] - a[0], b[1] - a[1]};
@@ -120,8 +124,12 @@ bool is_rectangle(double *dot1, double *dot2, double *dot3, double *dot4) {
 
 //точки прямоугольника отсортированы
 bool is_in_rectangle(double *dot, int *rect, double **dots) {
-    return dot[0] >= dots[rect[0]][0] && dot[0] <= dots[rect[1]][0] && dot[1] <= dots[rect[0]][1] &&
-           dot[1] >= dots[rect[2]][1];
+    double vp1 = vec_prod(vec(dot, dots[rect[0]]), vec(dots[rect[0]], dots[rect[1]]));
+    double vp2 = vec_prod(vec(dot, dots[rect[1]]), vec(dots[rect[1]], dots[rect[2]]));
+    double vp3 = vec_prod(vec(dot, dots[rect[2]]), vec(dots[rect[2]], dots[rect[3]]));
+    double vp4 = vec_prod(vec(dot, dots[rect[3]]), vec(dots[rect[3]], dots[rect[0]]));
+
+    return (vp1 >= 0 && vp2 >= 0 && vp3 >= 0 && vp4 >= 0) || (vp1 <= 0 && vp2 <= 0 && vp3 <= 0 && vp4 <= 0);
 }
 
 bool have_crossing_area(int *rect1, int *rect2, double **dots) {
@@ -177,13 +185,52 @@ double find_crossing_area(int *rect1, int *rect2, double **dots) {
     }
 }
 
-void read_dots(double **dots, int &N, fstream &in) {
-    for (int i = 0; i < N; i++) {
-        in >> setiosflags(ios::skipws) >> dots[i][0] >> dots[i][1];
+void read_dots(double **dots, int &N, fstream &in, fstream &f) {
+    int line = 2;
+    for (int i = 0; i < N; i++, line++) {
         char c = ' ';
+        bool skipped = false;
         while (true) {
             in >> resetiosflags(ios::skipws) >> c;
-            if (c == '\r' || in.eof()) break;
+
+            if (c != '\n' && !in.eof()) {
+                if (c == ' ') continue;
+                else {
+                    in.seekg(-1, ios::cur);
+                    break;
+                }
+            } else {
+                i--;
+                out(f, "Строка " + to_string(line) + " пропущена так как пуста \n");
+                skipped = true;
+            }
+        }
+        if (skipped) {
+            continue;
+        }
+
+        in >> setiosflags(ios::skipws) >> dots[i][0];
+        while (true) {
+            in >> resetiosflags(ios::skipws) >> c;
+
+            if (c != '\n' && !in.eof()) {
+                if (c == ' ') continue;
+                else {
+                    in.seekg(-1, ios::cur);
+                    break;
+                }
+            } else {
+                i--;
+                out(f, "Строка " + to_string(line) + " пропущена так как отсутствует у координата \n");
+                skipped = true;
+            }
+        }
+        if (skipped) continue;
+
+        in >> setiosflags(ios::skipws) >> dots[i][1];
+        while (true) {
+            in >> resetiosflags(ios::skipws) >> c;
+            if (c == '\n' || in.eof()) break;
         }
         if (in.eof()) {
             N = i + 1;
@@ -251,13 +298,19 @@ void find_rectangles(double **dots, int **&rectangles, int N, int &f_rects, int 
     }
 }
 
-void print_rectangles(int **rectangles, int f_rects, double **dots) {
+void print_rectangle(int * rect, double ** dots, fstream &f) {
+    for (int i = 0; i < 4; i++) {
+        out(f, dots[rect[i]][0]);
+        out(f, " ");
+        out(f, dots[rect[i]][1]);
+        out(f, " | ");
+    }
+}
+void print_rectangles(int **rectangles, int f_rects, double **dots, fstream &f) {
     for (int i = 0; i < f_rects; i++) {
-        cout << i << " | ";
-        for (int j = 0; j < 4; j++) {
-            cout << dots[rectangles[i][j]][0] << " " << dots[rectangles[i][j]][1] << " | ";
-        }
-        cout << endl;
+        out(f, to_string(i + 1) + " | ");
+        print_rectangle(rectangles[i], dots, f);
+        out(f, "\n");
     }
 }
 
@@ -272,9 +325,29 @@ bool have_common_dots(int *rect_1, int *rect_2) {
 
 int main() {
     fstream in("../in.txt");
+    fstream f("../out.txt", ios::out);
+
+    if (!f.is_open()) {
+        cout << "Не получилось открыть файл для записи";
+        return 0;
+    } else if (!in.is_open()) {
+        out(f, "Не получилось открыть файл для чтения");
+        return 0;
+    }
+
+    out(f, "Здравствуйте, данную лабораторную работу выполнил Ахметзянов Дамир Альбертович, группа 1309\n"
+              "Версия: 6.0\n"
+              "Начало: 06.12.2021\n"
+              "Конец: -\n"
+              "Задание: 1зi2А\n");
 
     int N;
     in >> N;
+    char c = ' ';
+    while (true) {
+        in >> resetiosflags(ios::skipws) >> c;
+        if (c == '\n' || in.eof()) break;
+    }
     N = max(min(N, MAX_N), 0);
 
     auto **dots = new double *[N];
@@ -284,12 +357,26 @@ int main() {
 
     for (int i = 0; i < N; i++) dots[i] = new double[2];
 
-    read_dots(dots, N, in);
+    read_dots(dots, N, in, f);
+
+    out(f, "В файле найдено " + to_string(N) + " точек \n");
+    for (int i = 0; i < N; i++) {
+        out(f, to_string(i + 1) + " | ");
+        out(f, dots[i][0]);
+        out(f, " | ");
+        out(f, dots[i][1]);
+        out(f, "\n");
+    }
+
     find_rectangles(dots, rectangles, N, f_rects, cur_size);
 
-    print_rectangles(rectangles, f_rects, dots);
+    out(f, "В файле найдено " + to_string(f_rects) + " прямоугольников \n");
+
+    print_rectangles(rectangles, f_rects, dots, f);
 
     auto **crossing_areas = new double *[f_rects];
+
+    auto *max_area_for_dot = new double[N];
     for (int i = 0; i < f_rects; i++) crossing_areas[i] = new double[f_rects];
 
     for (int i = 0; i < f_rects; i++) {
@@ -298,7 +385,21 @@ int main() {
                 if (!is_same_rects(rectangles[i], rectangles[j]) && !have_common_dots(rectangles[i], rectangles[j])) {
                     if (is_parallel_rects(rectangles[i], rectangles[j], dots)) {
                         if (have_crossing_area(rectangles[i], rectangles[j], dots)) {
-                            crossing_areas[i][j] = find_crossing_area(rectangles[i], rectangles[j], dots);
+                            double area = find_crossing_area(rectangles[i], rectangles[j], dots);
+
+                            bool found_bigger = false;
+                            for (int k = 0; k < 4; k++) {
+                                if (max_area_for_dot[rectangles[i][k]] > area ||
+                                    max_area_for_dot[rectangles[j][k]] > area) {
+                                    found_bigger = true;
+                                    break;
+                                };
+                                max_area_for_dot[rectangles[i][k]] = max(max_area_for_dot[rectangles[i][k]], area);
+                                max_area_for_dot[rectangles[j][k]] = max(max_area_for_dot[rectangles[j][k]], area);
+                            }
+                            if (!found_bigger && crossing_areas[j][i] != area) {
+                                crossing_areas[i][j] = area;
+                            }
                         } else {
                             crossing_areas[i][j] = 0;
                         }
@@ -310,10 +411,29 @@ int main() {
         }
     }
 
+    out(f, "Прямоугольники с наибольшей площадью пересечения: \n");
+    int printed = 1;
     for (int i = 0; i < f_rects; i++) {
         for (int j = 0; j < f_rects; j++) {
             if (crossing_areas[i][j] != 0) {
-                cout << i << " " << j << " " << crossing_areas[i][j] << endl;
+                bool found_bigger = false;
+                for (int k = 0; k < 4; k++) {
+                    if (max_area_for_dot[rectangles[i][k]] > crossing_areas[i][j] ||
+                        max_area_for_dot[rectangles[j][k]] > crossing_areas[i][j]) {
+                        found_bigger = true;
+                        break;
+                    };
+                }
+                if (!found_bigger) {
+                    out(f, to_string(printed) + ". ");
+                    print_rectangle(rectangles[i], dots, f);
+                    out(f, "\n   ");
+                    print_rectangle(rectangles[j], dots, f);
+                    out(f, "\n Общая площадь: ");
+                    out(f, crossing_areas[i][j]);
+                    out(f, "\n");
+                    printed++;
+                }
             }
         }
     }
