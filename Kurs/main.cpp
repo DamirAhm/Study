@@ -140,47 +140,102 @@ bool have_crossing_area(int *rect1, int *rect2, double **dots) {
 }
 
 //имеют как минимум одну внутреннюю точку
-double find_crossing_area(int *rect1, int *rect2, double **dots) {
-    int inner_points_amt = 0;
-    bool inner_points[4];
+double find_crossing_area(fstream &f, int *r1, int rect1_n, int *r2, int rect2_n, double **dots) {
+    rect1_n++;
+    rect2_n++;
+
+    int inner_points_amt_12 = 0;
+    bool inner_points_12[4];
 
     for (int i = 0; i < 4; i++) {
-        inner_points[i] = false;
-        if (is_in_rectangle(dots[rect1[i]], rect2, dots)) {
-            inner_points_amt++;
-            inner_points[i] = true;
+        inner_points_12[i] = false;
+        if (is_in_rectangle(dots[r1[i]], r2, dots)) {
+            inner_points_amt_12++;
+            inner_points_12[i] = true;
         }
     }
-    assert(inner_points_amt > 0 && (inner_points[0] || inner_points[1] || inner_points[2] || inner_points[3]));
+
+    int inner_points_amt_21 = 0;
+    bool inner_points_21[4];
+
+    for (int i = 0; i < 4; i++) {
+        inner_points_21[i] = false;
+        if (is_in_rectangle(dots[r2[i]], r1, dots)) {
+            inner_points_amt_21++;
+            inner_points_21[i] = true;
+        }
+    }
+
+    int inner_points_amt = max(inner_points_amt_12, inner_points_amt_21);
+    bool inner_points[4];
+
+    int* rect1 = new int[4];
+    int* rect2 = new int[4];
+    if (inner_points_amt_12 < inner_points_amt_21) {
+        for (int i = 0; i < 4; i++) inner_points[i] = inner_points_21[i];
+        swap(rect1_n, rect2_n);
+
+        for (int i = 0; i < 4; i++) rect1[i] = r2[i], rect2[i] = r1[i];
+    } else {
+        for (int i = 0; i < 4; i++) inner_points[i] = inner_points_12[i];
+        for (int i = 0; i < 4; i++) rect1[i] = r1[i], rect2[i] = r2[i];
+    }
 
     if (inner_points_amt >= 3) {
-        return rect_area(rect1, dots);
+        double area = rect_area(rect1, dots);
+        f << "Прямоугольник " << rect1_n << " содержится в прямоугольнике " << rect2_n << " (ситуация 3)"
+          << " общая площадь = " << fixed << setprecision(PRES) << area << endl;
+        return area;
     } else if (inner_points_amt == 2) {
         if (inner_points[0] && inner_points[1]) {
-            return len(dots[rect1[0]], dots[rect1[1]]) * dist(dots[rect1[0]], dots[rect2[2]], dots[rect2[3]]);
+            double area = len(dots[rect1[0]], dots[rect1[1]]) * dist(dots[rect1[0]], dots[rect2[2]], dots[rect2[3]]);
+            f << "В прямоугольнике " << rect2_n << " содержится 2 точки прямоугольника " << rect1_n << " (ситуация 4)"
+              << " общая площадь = " << fixed << setprecision(PRES) << area << endl;
+            return area;
         } else if (inner_points[1] && inner_points[2]) {
-            return len(dots[rect1[1]], dots[rect1[2]]) * dist(dots[rect1[1]], dots[rect2[3]], dots[rect2[0]]);
+            double area = len(dots[rect1[1]], dots[rect1[2]]) * dist(dots[rect1[1]], dots[rect2[3]], dots[rect2[0]]);
+            f << "В прямоугольнике " << rect2_n << " содержится 2 точки прямоугольника " << rect1_n << " (ситуация 4)"
+              << " общая площадь = " << fixed << setprecision(PRES) << area << endl;
+            return area;
         } else if (inner_points[2] && inner_points[3]) {
-            return len(dots[rect1[2]], dots[rect1[3]]) * dist(dots[rect1[2]], dots[rect2[0]], dots[rect2[1]]);
+            double area = len(dots[rect1[2]], dots[rect1[3]]) * dist(dots[rect1[2]], dots[rect2[0]], dots[rect2[1]]);
+            f << "В прямоугольнике " << rect2_n << " содержится 2 точки прямоугольника " << rect1_n << " (ситуация 4)"
+              << " общая площадь = " << fixed << setprecision(PRES) << area << endl;
+            return area;
         } else if (inner_points[3] && inner_points[0]) {
-            return len(dots[rect1[3]], dots[rect1[0]]) * dist(dots[rect1[0]], dots[rect2[1]], dots[rect2[2]]);
+            double area = len(dots[rect1[3]], dots[rect1[0]]) * dist(dots[rect1[0]], dots[rect2[1]], dots[rect2[2]]);
+            f << "В прямоугольнике " << rect2_n << " содержится 2 точки прямоугольника " << rect1_n << " (ситуация 4)"
+              << " общая площадь = " << fixed << setprecision(PRES) << area << endl;
+            return area;
         } else {
             assert(false);
         }
         //inner_points_amt == 1
     } else {
         if (inner_points[0]) {
-            return dist(dots[rect1[0]], dots[rect2[1]], dots[rect2[2]]) *
-                   dist(dots[rect1[0]], dots[rect2[2]], dots[rect2[3]]);
+            double area = dist(dots[rect1[0]], dots[rect2[1]], dots[rect2[2]]) *
+                          dist(dots[rect1[0]], dots[rect2[2]], dots[rect2[3]]);
+            f << "В прямоугольнике " << rect2_n << " содержится 1 точка прямоугольника " << rect1_n << " (ситуация 1)"
+              << " общая площадь = " << fixed << setprecision(PRES) << area << endl;
+            return area;
         } else if (inner_points[1]) {
-            return dist(dots[rect1[1]], dots[rect2[2]], dots[rect2[3]]) *
-                   dist(dots[rect1[1]], dots[rect2[3]], dots[rect2[0]]);
+            double area = dist(dots[rect1[1]], dots[rect2[2]], dots[rect2[3]]) *
+                          dist(dots[rect1[1]], dots[rect2[3]], dots[rect2[0]]);
+            f << "В прямоугольнике " << rect2_n << " содержится 1 точка прямоугольника " << rect1_n << " (ситуация 1)"
+              << " общая площадь = " << fixed << setprecision(PRES) << area << endl;
+            return area;
         } else if (inner_points[2]) {
-            return dist(dots[rect1[2]], dots[rect2[3]], dots[rect2[0]]) *
-                   dist(dots[rect1[2]], dots[rect2[0]], dots[rect2[1]]);
+            double area = dist(dots[rect1[2]], dots[rect2[3]], dots[rect2[0]]) *
+                          dist(dots[rect1[2]], dots[rect2[0]], dots[rect2[1]]);
+            f << "В прямоугольнике " << rect2_n << " содержится 1 точка прямоугольника " << rect1_n << " (ситуация 1)"
+              << " общая площадь = " << fixed << setprecision(PRES) << area << endl;
+            return area;
         } else {
-            return dist(dots[rect1[3]], dots[rect2[0]], dots[rect2[1]]) *
-                   dist(dots[rect1[3]], dots[rect2[1]], dots[rect2[2]]);
+            double area = dist(dots[rect1[3]], dots[rect2[0]], dots[rect2[1]]) *
+                          dist(dots[rect1[3]], dots[rect2[1]], dots[rect2[2]]);
+            f << "В прямоугольнике " << rect2_n << " содержится 1 точка прямоугольника " << rect1_n << " (ситуация 1)"
+              << " общая площадь = " << fixed << setprecision(PRES) << area << endl;
+            return area;
         }
     }
 }
@@ -202,6 +257,10 @@ void read_dots(double **dots, int &N, fstream &in, fstream &f) {
             } else {
                 i--;
                 out(f, "Строка " + to_string(line) + " пропущена так как пуста \n");
+                if (in.eof()) {
+                    N = i + 1;
+                    return;
+                }
                 skipped = true;
             }
         }
@@ -243,7 +302,7 @@ bool is_same_rects(int *rect1, int *rect2) {
     return rect1[0] == rect2[0] && rect1[1] == rect2[1] && rect1[2] == rect2[2] && rect1[3] == rect2[3];
 }
 
-void find_rectangles(double **dots, int **&rectangles, int N, int &f_rects, int &cur_size) {
+void find_rectangles(fstream &f, double **dots, int **&rectangles, int N, int &f_rects, int &cur_size) {
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
             for (int k = 0; k < N; k++) {
@@ -257,39 +316,44 @@ void find_rectangles(double **dots, int **&rectangles, int N, int &f_rects, int 
 
                         assert(is_rectangle(dots[i], dots[j], dots[k], new_dot) == true);
 
-                        int found = -1;
+                        int *possible_4th = new int[100];
+                        int n_possibles = 0;
                         for (int o = 0; o < N; o++) {
-                            if (dots[o][0] == new_dot_x && dots[o][1] == new_dot_y) {
-                                found = o;
+                            if (dots[o][0] == new_dot_x && dots[o][1] == new_dot_y && o != i && o != j && o != k) {
+                                possible_4th[n_possibles] = o;
+                                n_possibles++;
                                 break;
                             }
                         }
 
-                        if (found == -1 || found == i || found == j || found == k) continue;
+                        for (int o = 0; o < n_possibles; o++) {
+                            auto *rectangle = new int[4];
+                            rectangle[0] = i;
+                            rectangle[1] = j;
+                            rectangle[2] = k;
+                            rectangle[3] = possible_4th[o];
 
-                        auto *rectangle = new int[4];
-                        rectangle[0] = i;
-                        rectangle[1] = j;
-                        rectangle[2] = k;
-                        rectangle[3] = found;
+                            rectangle = sort_rectangle_dots(rectangle, dots);
 
-                        rectangle = sort_rectangle_dots(rectangle, dots);
-
-                        bool exists = false;
-                        for (int o = 0; o < f_rects; o++) {
-                            if (is_same_rects(rectangles[o], rectangle)) exists = true;
-                        }
-
-                        if (!exists) {
-                            if (f_rects == cur_size) {
-                                auto **new_arr = new int *[2 * cur_size];
-                                memcpy(new_arr, rectangles, cur_size * sizeof(int *));
-                                rectangles = new_arr;
-                                cur_size *= 2;
+                            bool exists = false;
+                            for (int m = 0; m < f_rects; m++) {
+                                if (is_same_rects(rectangles[m], rectangle)) {
+                                    exists = true;
+                                    break;
+                                }
                             }
 
-                            rectangles[f_rects] = rectangle;
-                            f_rects++;
+                            if (!exists) {
+                                if (f_rects == cur_size) {
+                                    auto **new_arr = new int *[2 * cur_size];
+                                    memcpy(new_arr, rectangles, cur_size * sizeof(int *));
+                                    rectangles = new_arr;
+                                    cur_size *= 2;
+                                }
+
+                                rectangles[f_rects] = rectangle;
+                                f_rects++;
+                            }
                         }
                     }
                 }
@@ -298,14 +362,15 @@ void find_rectangles(double **dots, int **&rectangles, int N, int &f_rects, int 
     }
 }
 
-void print_rectangle(int * rect, double ** dots, fstream &f) {
+void print_rectangle(int *rect, double **dots, fstream &f) {
     for (int i = 0; i < 4; i++) {
         out(f, dots[rect[i]][0]);
         out(f, " ");
         out(f, dots[rect[i]][1]);
-        out(f, " | ");
+        out(f, " (" + to_string(rect[i]) + ") | ");
     }
 }
+
 void print_rectangles(int **rectangles, int f_rects, double **dots, fstream &f) {
     for (int i = 0; i < f_rects; i++) {
         out(f, to_string(i + 1) + " | ");
@@ -336,10 +401,10 @@ int main() {
     }
 
     out(f, "Здравствуйте, данную лабораторную работу выполнил Ахметзянов Дамир Альбертович, группа 1309\n"
-              "Версия: 6.0\n"
-              "Начало: 06.12.2021\n"
-              "Конец: -\n"
-              "Задание: 1зi2А\n");
+           "Версия: 6.0\n"
+           "Начало: 06.12.2021\n"
+           "Конец: -\n"
+           "Задание: 1зi2А\n");
 
     int N;
     in >> N;
@@ -368,9 +433,14 @@ int main() {
         out(f, "\n");
     }
 
-    find_rectangles(dots, rectangles, N, f_rects, cur_size);
+    find_rectangles(f, dots, rectangles, N, f_rects, cur_size);
 
-    out(f, "В файле найдено " + to_string(f_rects) + " прямоугольников \n");
+    if (f_rects == 0) {
+        out(f, "Не найдено ни одного прямоугольника");
+        return 0;
+    } else {
+        out(f, "В файле найдено " + to_string(f_rects) + " прямоугольников \n");
+    }
 
     print_rectangles(rectangles, f_rects, dots, f);
 
@@ -379,13 +449,14 @@ int main() {
     auto *max_area_for_dot = new double[N];
     for (int i = 0; i < f_rects; i++) crossing_areas[i] = new double[f_rects];
 
+    f << "Пересечения прямоугольников: " << endl;
     for (int i = 0; i < f_rects; i++) {
         for (int j = 0; j < f_rects; j++) {
-            if (i != j) {
-                if (!is_same_rects(rectangles[i], rectangles[j]) && !have_common_dots(rectangles[i], rectangles[j])) {
+            if (i < j) {
+                if (!have_common_dots(rectangles[i], rectangles[j])) {
                     if (is_parallel_rects(rectangles[i], rectangles[j], dots)) {
-                        if (have_crossing_area(rectangles[i], rectangles[j], dots)) {
-                            double area = find_crossing_area(rectangles[i], rectangles[j], dots);
+                        if (have_crossing_area(rectangles[i], rectangles[j], dots) || have_crossing_area(rectangles[j], rectangles[i], dots)) {
+                            double area = find_crossing_area(f, rectangles[i], i, rectangles[j], j, dots);
 
                             bool found_bigger = false;
                             for (int k = 0; k < 4; k++) {
@@ -400,19 +471,28 @@ int main() {
                             if (!found_bigger && crossing_areas[j][i] != area) {
                                 crossing_areas[i][j] = area;
                             }
-                        } else {
-                            crossing_areas[i][j] = 0;
+                        } else if (j > i && !have_crossing_area(rectangles[j], rectangles[i], dots)) {
+                            f << "Прямоугольники " << i + 1 << " и " << j + 1 << "не пересекаются" << endl;
+                            crossing_areas[i][j] = -1;
                         }
-                    } else {
-                        crossing_areas[i][j] = 0;
+                    } else if (j > i) {
+                        f << "Прямоугольники " << i + 1 << " и " << j + 1 << "не параллельны" << endl;
+                        crossing_areas[i][j] = -1;
                     }
+                } else if (j > i) {
+                    f << "Прямоугольники " << i + 1 << " и " << j + 1 << " имеют общие точки поэтому не могут пересекаться" << endl;
+                    crossing_areas[i][j] = -1;
                 }
             }
         }
     }
 
     out(f, "Прямоугольники с наибольшей площадью пересечения: \n");
-    int printed = 1;
+    double max_common_area = -1;
+    int **max_pairs = new int *[1000];
+    for (int i = 0; i < 1000; i++) max_pairs[i] = new int[2];
+    int n_pairs = 0;
+
     for (int i = 0; i < f_rects; i++) {
         for (int j = 0; j < f_rects; j++) {
             if (crossing_areas[i][j] != 0) {
@@ -424,18 +504,34 @@ int main() {
                         break;
                     };
                 }
-                if (!found_bigger) {
-                    out(f, to_string(printed) + ". ");
-                    print_rectangle(rectangles[i], dots, f);
-                    out(f, "\n   ");
-                    print_rectangle(rectangles[j], dots, f);
-                    out(f, "\n Общая площадь: ");
-                    out(f, crossing_areas[i][j]);
-                    out(f, "\n");
-                    printed++;
+
+                if (!found_bigger && crossing_areas[i][j] > max_common_area) {
+                    n_pairs = 1;
+                    max_common_area = crossing_areas[i][j];
+                    max_pairs[0][0] = i;
+                    max_pairs[0][1] = j;
+                } else if (!found_bigger && crossing_areas[i][j] == max_common_area) {
+                    max_pairs[n_pairs][0] = i;
+                    max_pairs[n_pairs][1] = j;
+                    n_pairs++;
                 }
             }
         }
+    }
+
+    if (max_common_area == -1) {
+        out(f, "Не найдено пересекающихся прямоугольников");
+    }
+
+    out(f, "Найдено " + to_string(n_pairs) + " пар пересекающихся прямоугольников\n");
+    for (int i = 0; i < n_pairs; i++) {
+        out(f, to_string(i + 1) + ". ");
+        print_rectangle(rectangles[max_pairs[i][0]], dots, f);
+        out(f, "\n   ");
+        print_rectangle(rectangles[max_pairs[i][1]], dots, f);
+        out(f, "\n Общая площадь: ");
+        out(f, crossing_areas[max_pairs[i][0]][max_pairs[i][1]]);
+        out(f, "\n");
     }
 
     return 0;
