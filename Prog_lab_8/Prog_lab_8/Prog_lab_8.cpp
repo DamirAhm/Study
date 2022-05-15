@@ -41,14 +41,14 @@ int main() {
     double_list* L1_list = read_list(L1);
     cout << "Считанный L1: \n";
     out << "Считанный L1: \n";
-    print_line(L1_list->h->el, out);
+    print_text(L1_list, out);
     cout << endl << endl;
     out << endl << endl;
 
     double_list* L2_list = read_list(L2);
     cout << "Считанный L2: \n";
     out << "Считанный L2: \n";
-    print_line(L2_list->h->el, out);
+    print_text(L2_list, out);
     cout << endl;
     out << endl;
 
@@ -60,6 +60,8 @@ int main() {
     ALL all = { res, L1_list, L2_list };
 
     task(all);
+
+    cout << endl;
 
     cout << "Результат: \n";
     out << "Результат: \n";

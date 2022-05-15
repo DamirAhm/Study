@@ -1,13 +1,2 @@
-﻿  double_list.cpp
-  double_list_item.cpp
-D:\Programming\Stud\Prog_lab_8\Prog_lab_8\double_list_item.cpp(1,10): warning C4067: непредвиденные лексемы за директивой препроцессора, требуется newline
-  print_list.cpp
-D:\Programming\Stud\Prog_lab_8\Prog_lab_8\print_list.cpp(4,10): warning C4067: непредвиденные лексемы за директивой препроцессора, требуется newline
-  Prog_lab_8.cpp
-D:\Programming\Stud\Prog_lab_8\Prog_lab_8\ALL.h(2,10): warning C4067: непредвиденные лексемы за директивой препроцессора, требуется newline
-  read_list.cpp
-  task.cpp
-D:\Programming\Stud\Prog_lab_8\Prog_lab_8\task.cpp(1,10): warning C4067: непредвиденные лексемы за директивой препроцессора, требуется newline
-D:\Programming\Stud\Prog_lab_8\Prog_lab_8\ALL.h(2,10): warning C4067: непредвиденные лексемы за директивой препроцессора, требуется newline
-  Создание кода...
+﻿  read_list.cpp
   Prog_lab_8.vcxproj -> D:\Programming\Stud\Prog_lab_8\Debug\Prog_lab_8.exe

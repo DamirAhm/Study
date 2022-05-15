@@ -8,4 +8,4 @@ awd ->awdusad ->awodsalkk ->apwpdlal ->apdfkdks ->ammmksv ->av ->a ->wdd#->NULL
 Считанные элементы: 
 111 ->22 ->3333 ->44-4 ->5__5#->NULL
 Получившийся текст: 
-awd ->awdusad ->awodsalkk ->apwpdlal ->apdfkdks ->ammmksv ->av ->111 ->22 ->3333 ->a ->wdd#->NULL
+awd ->awdusad ->awodsalkk ->apwpdlal ->apdfkdks ->ammmksv ->av ->111 ->22 ->a ->wdd#->NULL

@@ -29,6 +29,13 @@ double_list* read_list(ifstream& file) {
 		file >> resetiosflags(ios::skipws) >> new_symbol;
 
 		if (new_symbol == '\n') {
+			if (text->c->el->c->el->len == 0) {
+				text->c->el->go_to_start();
+				while (text->c->el->c->get_next() != nullptr && text->c->el->c->get_next()->el->len != 0) text->c->el->go_next();
+
+				text->c->el->c->set_next(nullptr);
+			}
+
 			strm* new_strm = new strm();
 			list_item* new_item = new list_item(new_strm);
 			list* new_line = new list(new_item);
@@ -55,12 +62,10 @@ double_list* read_list(ifstream& file) {
 		}
 	}
 
-	if (text->c->el->h->el->len == 0) {
-		text->h->el->go_to_start();
-		while (text->h->el->c->get_next() != nullptr && text->h->el->c->get_next()->el->len != 0) text->h->el->go_next();
-
-		text->h->el->c->set_next(nullptr);
-	}
+	auto last_el = text->c->el->c;
+	text->c->el->go_to_start();
+	while (text->c->el->c->get_next() != last_el) text->c->el->go_next();
+	text->c->el->c->set_next(nullptr);
 
 	return text;
 }

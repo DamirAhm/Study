@@ -12,5 +12,7 @@ public:
 	void go_next();
 
 	void go_to_start();
+
+	bool includes(strm* item);
 };
 #endif
